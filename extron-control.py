@@ -24,7 +24,7 @@ if sys.argv[2] == "on":
 
     # Because the Display On button doesn't always
     # turn on the display when emulated (depends on
-    # programming, actually power on the display now
+    # programming) actually power on the display now
     # and wait for the display powering on status.
     tn.write('1P\r\n')
     print tn.read_until("Pwr3", 1); # Pwr3 is "powering up"
