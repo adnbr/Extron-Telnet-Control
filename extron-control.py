@@ -11,10 +11,15 @@ if len(sys.argv) < 3:
 HOST = sys.argv[1]
 tn = telnetlib.Telnet(HOST)
 
-# Don't bother with regex-ing the telnet output from the Extron
-# because the first string ends in a date and doesn't give a prompt.
-# Unhelpful! Todo: Find a better 'until' string.
-print tn.read_until("ThisWillNeverOccur", 1);
+# Look for the name "Extron Electronics" and the timestamp at the
+# end of the welcome message. TODO: Concat regex into one string.
+#
+# Example message:
+# (c) Copyright 2006, Extron Electronics, MLC 226 IP, V1.05, 60-600-00
+# Wed, 09 Mar 2016 12:43:34
+tn.expect([r"(Extron).*?(Electronics)(?:)"]);
+tn.expect([r"((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9])?)"]);
+print "\nConnected to Extron control at " + HOST
 
 if sys.argv[2] == "on":
     # Simulate pressing the "Display On" button
@@ -27,7 +32,8 @@ if sys.argv[2] == "on":
     # programming) actually power on the display now
     # and wait for the display powering on status.
     tn.write('1P\r\n')
-    print tn.read_until("Pwr3", 1); # Pwr3 is "powering up"
+    tn.read_until("Pwr3", 1); # Pwr3 is "powering up"
+    print "Status Pwr3. Powering on."
 else:
     # Simulate pressing the "Display Off" button
     # and wait for the response
@@ -36,7 +42,8 @@ else:
 
     # Tell projector to turn off, wait for response.
     tn.write('0P\r\n')
-    print tn.read_until("Pwr2", 1); # Pwr2 is "powering down"
+    tn.read_until("Pwr2", 1); # Pwr2 is "powering down"
+    print ("Status Pwr2. Powering off.")
 
 
 tn.close()
